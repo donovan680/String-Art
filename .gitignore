@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+/SFML-2.5.1
+/x64/Release
+/.vs/StringArt/v16
+/StringArt.vcxproj.user
+/StringArt.vcxproj.filters
+/StringArt.vcxproj
+/StringArt.sln
+/Debug
