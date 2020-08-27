@@ -5,6 +5,7 @@
 
 #define WIDTH 800
 #define HEIGHT 800
+#define RADIUS 400
 
 #define PI 3.14159265
 
@@ -77,23 +78,23 @@ vector<pair<int, int>> generateLines(sf::Vector2f* &points, sf::Image &image) {
 	vector<sf::Vector2f> pixelsToErase;
 
 	// Number of strings
-	for (int i = 0; i < 200; i++) {
+	for (int i = 0; i < 10000; i++) {
 		int startPointIndex = choosenPointIndex;
 		float bestScore = 0;
 
 		// Iterate over every point to see where to connect the string to
-		for (int j = 0; j < 100; j++) {
+		for (int j = 0; j < 200; j++) {
 			vector<sf::Vector2f> pixels = getPixelsInLine(points[startPointIndex], points[j]);
 			float score = 0;
 
 			for (sf::Vector2f pixel : pixels) {
 				sf::Color color = image.getPixel(pixel.x, pixel.y);
 
-				if (0.3 * color.r + 0.59 * color.g + 0.11 * color.r < 200)
+				if (0.3 * color.r + 0.59 * color.g + 0.11 * color.r < 10)
 					score += 1;
 			}
 
-			if (score > bestScore && j != choosenPointIndex) {
+			if (score > bestScore) {
 				choosenPointIndex = j;
 				bestScore = score;
 				pixelsToErase = pixels;
@@ -121,8 +122,8 @@ void drawPoint(sf::RenderWindow &window, sf::Vector2f &coordinates) {
 
 void drawLine(sf::RenderWindow &window, sf::Vector2f &startCoordinates, sf::Vector2f &endCoordinates) {
 	sf::Vertex line[] = {
-		sf::Vertex(startCoordinates, sf::Color::Red),
-		sf::Vertex(endCoordinates, sf::Color::Red)
+		sf::Vertex(startCoordinates, sf::Color(0, 0, 0, 50)),
+		sf::Vertex(endCoordinates, sf::Color(0, 0, 0, 50))
 	};
 
 	window.draw(line, 2, sf::Lines);
@@ -134,16 +135,11 @@ int main() {
 
 	sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "String Art", sf::Style::Default, settings);
 	
-	sf::CircleShape circle(350);
-	circle.setFillColor(sf::Color::Red);
-	circle.setPointCount(100);
-	circle.setPosition(400.f - circle.getRadius(), 400.f - circle.getRadius());
-
-	sf::Vector2f* points = generatePoints(100, 350);
+	sf::Vector2f* points = generatePoints(200, 399);
 
 	sf::Image image;
 
-	if (!image.loadFromFile("A.jpg")) {
+	if (!image.loadFromFile("mag.jpg")) {
 		cerr << "Couldn't read image";
 		
 		return 0;
@@ -164,14 +160,12 @@ int main() {
 			if (event.type == sf::Event::Closed)
 				window.close();
 
-		window.clear();
-		window.draw(sprite);
-
-		for (int i = 0; i < 100; i++)
-			drawPoint(window, points[i]);
+		window.clear(sf::Color(255, 255, 255));
 
 		for (int i = 0; i < lines.size(); i++)
 			drawLine(window, points[lines[i].first], points[lines[i].second]);
+
+		//window.draw(sprite);
 
 		window.display();
 	}
