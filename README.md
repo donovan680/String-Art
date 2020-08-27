@@ -1,1 +1,1 @@
-# String-Art
+# String Art

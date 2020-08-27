@@ -1,4 +1,6 @@
 #include <cmath>
+#include <iostream>
+
 #include <SFML/Graphics.hpp>
 
 #define WIDTH 800
@@ -37,6 +39,21 @@ void drawLine(sf::RenderWindow &window, sf::Vector2f &startCoordinates, sf::Vect
 	window.draw(line, 2, sf::Lines);
 }
 
+void drawImage(sf::RenderWindow& window) {
+	sf::Image image;
+	
+	if (!image.loadFromFile("dog.jpg"))
+		cerr << "Couldn't read image";
+
+	sf::Texture texture;
+	texture.loadFromImage(image);  //Load Texture from image
+
+	sf::Sprite sprite;
+	sprite.setTexture(texture);
+
+	window.draw(sprite);
+}
+
 int main() {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
@@ -50,7 +67,16 @@ int main() {
 
 	sf::Vector2f* points = generatePoints(100, 350);
 
-	
+	sf::Image image;
+
+	if (!image.loadFromFile("dog.jpg"))
+		cerr << "Couldn't read image";
+
+	sf::Texture texture;
+	texture.loadFromImage(image);  //Load Texture from image
+
+	sf::Sprite sprite;
+	sprite.setTexture(texture);
 
 	while (window.isOpen()) {
 		sf::Event event;
@@ -61,12 +87,17 @@ int main() {
 
 		window.clear();
 		window.draw(circle);
+		window.draw(sprite);
 		
 		for (int i = 0; i < 100; i++)
 			drawPoint(window, points[i]);
 
-		for (int i = 0; i < 50; i++) {
-			drawLine(window, points[i], points[i + 40]);
+		int choosenPoint = 0;
+
+		for (int i = 0; i < 1000; i++) {
+			for (int j = 0; j < 100; j++) {
+
+			}
 		}
 
 		window.display();
@@ -74,6 +105,4 @@ int main() {
 
 	return 0;
 }
-
-
 
