@@ -1,11 +1,16 @@
+#include <chrono>
 #include <cmath>
 #include <iostream>
+#include <thread>
 
 #include <SFML/Graphics.hpp>
 
 #define WIDTH 800
 #define HEIGHT 800
 #define RADIUS 400
+#define NUM_POINTS 200
+#define NUM_LINES 20000
+#define OPACITY 40
 
 #define PI 3.14159265
 
@@ -57,20 +62,20 @@ vector<sf::Vector2f> getPixelsInLine(sf::Vector2f& startCoordinates, sf::Vector2
 	return pixels;
 }
 
-sf::Vector2f* generatePoints(int n, float radius) {
-	sf::Vector2f* points = new sf::Vector2f[n];
+vector<sf::Vector2f> generatePoints(int n, float radius) {
+	vector<sf::Vector2f> points;
 	const double divisionAngle = 2 * PI / n;
 
 	for (int i = 0; i < n; i++) {
 		float currentAngle = divisionAngle * i;
 
-		points[i] = sf::Vector2f(cos(currentAngle) * radius + 400, sin(currentAngle) * radius + 400);
+		points.push_back(sf::Vector2f(cos(currentAngle) * radius + 400, sin(currentAngle) * radius + 400));
 	}
 
 	return points;
 }
 
-vector<pair<int, int>> generateLines(sf::Vector2f* &points, sf::Image &image) {
+vector<pair<int, int>> generateLines(vector<sf::Vector2f> &points, sf::Image &image, int numberLines) {
 	vector<pair<int, int>> lines;
 
 	int choosenPointIndex = 0;
@@ -78,12 +83,12 @@ vector<pair<int, int>> generateLines(sf::Vector2f* &points, sf::Image &image) {
 	vector<sf::Vector2f> pixelsToErase;
 
 	// Number of strings
-	for (int i = 0; i < 10000; i++) {
+	for (int i = 0; i < numberLines; i++) {
 		int startPointIndex = choosenPointIndex;
 		float bestScore = 0;
 
 		// Iterate over every point to see where to connect the string to
-		for (int j = 0; j < 200; j++) {
+		for (int j = 0; j < points.size(); j++) {
 			vector<sf::Vector2f> pixels = getPixelsInLine(points[startPointIndex], points[j]);
 			float score = 0;
 
@@ -120,10 +125,10 @@ void drawPoint(sf::RenderWindow &window, sf::Vector2f &coordinates) {
 	window.draw(point);
 }
 
-void drawLine(sf::RenderWindow &window, sf::Vector2f &startCoordinates, sf::Vector2f &endCoordinates) {
+void drawLine(sf::RenderWindow &window, sf::Vector2f &startCoordinates, sf::Vector2f &endCoordinates, int opacity) {
 	sf::Vertex line[] = {
-		sf::Vertex(startCoordinates, sf::Color(0, 0, 0, 50)),
-		sf::Vertex(endCoordinates, sf::Color(0, 0, 0, 50))
+		sf::Vertex(startCoordinates, sf::Color(0, 0, 0, opacity)),
+		sf::Vertex(endCoordinates, sf::Color(0, 0, 0, opacity))
 	};
 
 	window.draw(line, 2, sf::Lines);
@@ -135,17 +140,17 @@ int main() {
 
 	sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "String Art", sf::Style::Default, settings);
 	
-	sf::Vector2f* points = generatePoints(200, 399);
+	vector<sf::Vector2f> points = generatePoints(NUM_POINTS, RADIUS - 1);
 
 	sf::Image image;
 
-	if (!image.loadFromFile("mag.jpg")) {
+	if (!image.loadFromFile("eva.jpg")) {
 		cerr << "Couldn't read image";
 		
 		return 0;
 	}
 
-	vector<pair<int, int>> lines = generateLines(points, image);
+	vector<pair<int, int>> lines = generateLines(points, image, NUM_LINES);
 
 	sf::Texture texture;
 	texture.loadFromImage(image);  //Load Texture from image
@@ -153,19 +158,27 @@ int main() {
 	sf::Sprite sprite;
 	sprite.setTexture(texture);
 
+	int count = 0;
+	int index = 0;
+
+	sf::Clock clock;
+
 	while (window.isOpen()) {
 		sf::Event event;
+
+		window.clear(sf::Color::White);
 
 		while (window.pollEvent(event))
 			if (event.type == sf::Event::Closed)
 				window.close();
 
-		window.clear(sf::Color(255, 255, 255));
+		if (clock.getElapsedTime().asMilliseconds() > 5 && index < lines.size()) {
+			index++;
+			clock.restart();
+		}
 
-		for (int i = 0; i < lines.size(); i++)
-			drawLine(window, points[lines[i].first], points[lines[i].second]);
-
-		//window.draw(sprite);
+		for (int i = 0; i < index; i++)
+			drawLine(window, points[lines[i].first], points[lines[i].second], OPACITY);
 
 		window.display();
 	}
