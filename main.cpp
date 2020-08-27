@@ -54,6 +54,52 @@ void drawImage(sf::RenderWindow& window) {
 	window.draw(sprite);
 }
 
+vector<sf::Vector2f> getPixelsInLine(sf::Vector2f& startCoordinates, sf::Vector2f& endCoordinates) {
+	bool steep = false;
+	float x0 = startCoordinates.x;
+	float y0 = startCoordinates.y;
+	float x1 = endCoordinates.x;
+	float y1 = endCoordinates.y;
+
+	vector<sf::Vector2f> pixels;
+	
+	if (abs(x0 - x1) < abs(y0 - y1)) {
+		swap(x0, y0);
+		swap(x1, y1);
+		steep = true;
+	}
+
+	if (x0 > x1) {
+		swap(x0, x1);
+		swap(y0, y1);
+	}
+	
+	int dx = x1 - x0;
+	int dy = y1 - y0;
+	int derror2 = std::abs(dy) * 2;
+	int error2 = 0;
+	int y = y0;
+	
+	for (int x = x0; x <= x1; x++) {
+		if (steep) {
+			pixels.push_back(sf::Vector2f(y, x));
+		}
+
+		else {
+			pixels.push_back(sf::Vector2f(x, y));
+		}
+		
+		error2 += derror2;
+		
+		if (error2 > dx) {
+			y += (y1 > y0 ? 1 : -1);
+			error2 -= dx * 2;
+		}
+	}
+
+	return pixels;
+}
+
 int main() {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
@@ -94,9 +140,15 @@ int main() {
 
 		int choosenPoint = 0;
 
-		for (int i = 0; i < 1000; i++) {
+		// Number of strings
+		for (int i = 0; i < 10; i++) {
+			// Iterate over every point to see where to connect the string to
 			for (int j = 0; j < 100; j++) {
-
+				vector<sf::Vector2f> pixels = getPixelsInLine(points[choosenPoint], points[j]);
+				
+				for (sf::Vector2f pixel : pixels) {
+					image.getPixel(pixel.x, pixel.y).toInteger();
+				}
 			}
 		}
 
