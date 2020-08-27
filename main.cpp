@@ -21,6 +21,22 @@ sf::Vector2f* generatePoints(int n, float radius) {
 	return points;
 }
 
+void drawPoint(sf::RenderWindow &window, sf::Vector2f &coordinates) {
+	sf::CircleShape point(5);
+	point.setFillColor(sf::Color::White);
+	point.setPosition(coordinates.x - point.getRadius(), coordinates.y - point.getRadius());
+	window.draw(point);
+}
+
+void drawLine(sf::RenderWindow &window, sf::Vector2f &startCoordinates, sf::Vector2f &endCoordinates) {
+	sf::Vertex line[] = {
+		sf::Vertex(startCoordinates),
+		sf::Vertex(endCoordinates)
+	};
+
+	window.draw(line, 2, sf::Lines);
+}
+
 int main() {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
@@ -34,10 +50,7 @@ int main() {
 
 	sf::Vector2f* points = generatePoints(100, 350);
 
-	//sf::Vertex line[] = {
-	//	sf::Vertex(sf::Vector2f(10, 10)),
-	//	sf::Vertex(sf::Vector2f(150, 150))
-	//};
+	
 
 	while (window.isOpen()) {
 		sf::Event event;
@@ -49,17 +62,18 @@ int main() {
 		window.clear();
 		window.draw(circle);
 		
-		for (int i = 0; i < 100; i++) {
-			sf::CircleShape point(5);
-			point.setFillColor(sf::Color::White);
-			point.setPosition(points[i].x - point.getRadius(), points[i].y - point.getRadius()) ;
-			window.draw(point);
+		for (int i = 0; i < 100; i++)
+			drawPoint(window, points[i]);
+
+		for (int i = 0; i < 50; i++) {
+			drawLine(window, points[i], points[i + 40]);
 		}
 
-		//window.draw(line, 2, sf::Lines);
 		window.display();
 	}
 
 	return 0;
 }
+
+
 
