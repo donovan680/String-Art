@@ -1,3 +1,5 @@
+#include "Properties.h"
+
 #include <chrono>
 #include <cmath>
 #include <iostream>
@@ -7,10 +9,6 @@
 
 #define WIDTH 800
 #define HEIGHT 800
-#define RADIUS 400
-#define NUM_POINTS 200
-#define NUM_LINES 20000
-#define OPACITY 40
 
 #define PI 3.14159265
 
@@ -135,12 +133,14 @@ void drawLine(sf::RenderWindow &window, sf::Vector2f &startCoordinates, sf::Vect
 }
 
 int main() {
+	Properties properties;
+
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
 
 	sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "String Art", sf::Style::Default, settings);
 	
-	vector<sf::Vector2f> points = generatePoints(NUM_POINTS, RADIUS - 1);
+	vector<sf::Vector2f> points = generatePoints(properties.numberPoints, properties.radius - 1);
 
 	sf::Image image;
 
@@ -150,13 +150,7 @@ int main() {
 		return 0;
 	}
 
-	vector<pair<int, int>> lines = generateLines(points, image, NUM_LINES);
-
-	sf::Texture texture;
-	texture.loadFromImage(image);  //Load Texture from image
-
-	sf::Sprite sprite;
-	sprite.setTexture(texture);
+	vector<pair<int, int>> lines = generateLines(points, image, properties.numberLines);
 
 	int count = 0;
 	int index = 0;
@@ -178,7 +172,7 @@ int main() {
 		}
 
 		for (int i = 0; i < index; i++)
-			drawLine(window, points[lines[i].first], points[lines[i].second], OPACITY);
+			drawLine(window, points[lines[i].first], points[lines[i].second], properties.opacity);
 
 		window.display();
 	}
